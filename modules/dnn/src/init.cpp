@@ -84,7 +84,8 @@ void initializeLayerFactory()
     CV_DNN_REGISTER_LAYER_CLASS(Reshape,        ReshapeLayer);
     CV_DNN_REGISTER_LAYER_CLASS(Flatten,        FlattenLayer);
     CV_DNN_REGISTER_LAYER_CLASS(Resize,         ResizeLayer);
-    CV_DNN_REGISTER_LAYER_CLASS(Interp,         InterpLayer);
+    CV_DNN_REGISTER_LAYER_CLASS(Interp,      InterpLayer);
+    CV_DNN_REGISTER_LAYER_CLASS(ReduceSum,      ReduceSumLayer);
     CV_DNN_REGISTER_LAYER_CLASS(CropAndResize,  CropAndResizeLayer);
 
     CV_DNN_REGISTER_LAYER_CLASS(Convolution,    ConvolutionLayer);
@@ -103,6 +104,7 @@ void initializeLayerFactory()
     CV_DNN_REGISTER_LAYER_CLASS(PReLU,          ChannelsPReLULayer);
     CV_DNN_REGISTER_LAYER_CLASS(Sigmoid,        SigmoidLayer);
     CV_DNN_REGISTER_LAYER_CLASS(TanH,           TanHLayer);
+    CV_DNN_REGISTER_LAYER_CLASS(Exp,           ExpLayer);
     CV_DNN_REGISTER_LAYER_CLASS(ELU,            ELULayer);
     CV_DNN_REGISTER_LAYER_CLASS(BNLL,           BNLLLayer);
     CV_DNN_REGISTER_LAYER_CLASS(AbsVal,         AbsLayer);
@@ -113,6 +115,7 @@ void initializeLayerFactory()
     CV_DNN_REGISTER_LAYER_CLASS(Identity,       BlankLayer);
     CV_DNN_REGISTER_LAYER_CLASS(Silence,        BlankLayer);
     CV_DNN_REGISTER_LAYER_CLASS(Const,          ConstLayer);
+    //CV_DNN_REGISTER_LAYER_CLASS(ReduceSum,      ReduceSumLayer);
 
     CV_DNN_REGISTER_LAYER_CLASS(Crop,           CropLayer);
     CV_DNN_REGISTER_LAYER_CLASS(Eltwise,        EltwiseLayer);

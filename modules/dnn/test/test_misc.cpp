@@ -62,41 +62,21 @@ TEST(imagesFromBlob, Regression)
 
 TEST(readNet, Regression)
 {
-    Net net = readNet(findDataFile("dnn/squeezenet_v1.1.prototxt"),
+    Net net = readNet(findDataFile("dnn/squeezenet_v1.1.prototxt", false),
                       findDataFile("dnn/squeezenet_v1.1.caffemodel", false));
     EXPECT_FALSE(net.empty());
     net = readNet(findDataFile("dnn/opencv_face_detector.caffemodel", false),
-                  findDataFile("dnn/opencv_face_detector.prototxt"));
+                  findDataFile("dnn/opencv_face_detector.prototxt", false));
     EXPECT_FALSE(net.empty());
     net = readNet(findDataFile("dnn/openface_nn4.small2.v1.t7", false));
     EXPECT_FALSE(net.empty());
-    net = readNet(findDataFile("dnn/tiny-yolo-voc.cfg"),
+    net = readNet(findDataFile("dnn/tiny-yolo-voc.cfg", false),
                   findDataFile("dnn/tiny-yolo-voc.weights", false));
     EXPECT_FALSE(net.empty());
-    net = readNet(findDataFile("dnn/ssd_mobilenet_v1_coco.pbtxt"),
+    net = readNet(findDataFile("dnn/ssd_mobilenet_v1_coco.pbtxt", false),
                   findDataFile("dnn/ssd_mobilenet_v1_coco.pb", false));
     EXPECT_FALSE(net.empty());
 }
-
-typedef testing::TestWithParam<tuple<Backend, Target> > dump;
-TEST_P(dump, Regression)
-{
-    const int backend  = get<0>(GetParam());
-    const int target   = get<1>(GetParam());
-    Net net = readNet(findDataFile("dnn/squeezenet_v1.1.prototxt"),
-                      findDataFile("dnn/squeezenet_v1.1.caffemodel", false));
-
-    int size[] = {1, 3, 227, 227};
-    Mat input = cv::Mat::ones(4, size, CV_32F);
-    net.setInput(input);
-    net.setPreferableBackend(backend);
-    net.setPreferableTarget(target);
-    EXPECT_FALSE(net.dump().empty());
-    net.forward();
-    EXPECT_FALSE(net.dump().empty());
-}
-
-INSTANTIATE_TEST_CASE_P(/**/, dump, dnnBackendsAndTargets());
 
 class FirstCustomLayer CV_FINAL : public Layer
 {
@@ -178,9 +158,9 @@ TEST_P(setInput, normalization)
     const bool kSwapRB = true;
 
     if (backend == DNN_BACKEND_OPENCV && target == DNN_TARGET_OPENCL_FP16 && dtype != CV_32F)
-        applyTestTag(CV_TEST_TAG_DNN_SKIP_OPENCL_FP16);
+        throw SkipTestException("");
     if (backend == DNN_BACKEND_VKCOM && dtype != CV_32F)
-        throw SkipTestException(CV_TEST_TAG_DNN_SKIP_VULKAN);
+        throw SkipTestException("");
 
     Mat inp(5, 5, CV_8UC3);
     randu(inp, 0, 255);

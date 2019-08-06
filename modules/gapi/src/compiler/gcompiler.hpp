@@ -11,7 +11,6 @@
 
 #include <opencv2/gapi/gcommon.hpp>
 #include <opencv2/gapi/gkernel.hpp>
-#include <opencv2/gapi/infer.hpp>
 #include <opencv2/gapi/gcomputation.hpp>
 
 #include <ade/execution_engine/execution_engine.hpp>
@@ -27,7 +26,6 @@ class GAPI_EXPORTS GCompiler
     ade::ExecutionEngine     m_e;
 
     cv::gapi::GKernelPackage m_all_kernels;
-    cv::gapi::GNetPackage    m_all_networks;
 
     void validateInputMeta();
     void validateOutProtoArgs();

@@ -53,7 +53,6 @@
 #pragma warning( push )
 #pragma warning( disable: 4127 )
 #endif
-
 namespace cv
 {
 CV__DEBUG_NS_BEGIN

@@ -7,6 +7,9 @@
 
 #include "precomp.hpp"
 
+#include <functional>
+#include <unordered_set>
+
 #include <ade/util/algorithm.hpp>
 
 #include <ade/util/range.hpp>
@@ -23,6 +26,8 @@
 #include "compiler/gmodel.hpp"
 
 #include "backends/cpu/gcpubackend.hpp"
+#include <opencv2/gapi/cpu/imgproc.hpp>
+#include <opencv2/gapi/cpu/core.hpp>
 
 #include "api/gbackend_priv.hpp" // FIXME: Make it part of Backend SDK!
 
@@ -71,7 +76,7 @@ cv::gapi::GBackend cv::gapi::cpu::backend()
     return this_backend;
 }
 
-// GCPUExecutable implementation //////////////////////////////////////////////
+// GCPUExcecutable implementation //////////////////////////////////////////////
 cv::gimpl::GCPUExecutable::GCPUExecutable(const ade::Graph &g,
                                           const std::vector<ade::NodeHandle> &nodes)
     : m_g(g), m_gm(m_g)
@@ -87,7 +92,7 @@ cv::gimpl::GCPUExecutable::GCPUExecutable(const ade::Graph &g,
         {
             m_dataNodes.push_back(nh);
             const auto &desc = m_gm.metadata(nh).get<Data>();
-            if (desc.storage == Data::Storage::CONST_VAL)
+            if (desc.storage == Data::Storage::CONST)
             {
                 auto rc = RcDesc{desc.rc, desc.shape, desc.ctor};
                 magazine::bindInArg(m_res, rc, m_gm.metadata(nh).get<ConstValue>().arg);

@@ -50,6 +50,17 @@ namespace cv
 namespace dnn
 {
 
+static void Squeezeshape(const MatShape &srcShape,
+                                      MatShape& dstShape)
+{
+    int srcShapeSize = (int)srcShape.size();
+    for(int i=0;i<srcShapeSize;i++){
+        if(srcShape[0]==1 && i==0)
+            continue;
+        dstShape.push_back(srcShape[i]);
+    }
+}
+
 static void computeShapeByReshapeMask(const MatShape &srcShape,
                                       const MatShape &maskShape,
                                       Range srcRange /*= Range::all()*/,
@@ -174,6 +185,12 @@ public:
             for (i = 0; i < dims; i++)
                 newShapeDesc[i] = paramShape.get<int>(i);
         }
+        if(params.has("squeeze")){
+            squeeze = 1;
+        }
+        else{
+            squeeze = 0;
+        }
     }
 
     virtual bool supportBackend(int backendId) CV_OVERRIDE
@@ -193,7 +210,12 @@ public:
             for (size_t i = 0; i < inputs.size(); i++)
             {
                 outputs.push_back(MatShape());
-                computeShapeByReshapeMask(inputs[i], newShapeDesc, newShapeRange, outputs.back());
+                if(squeeze==1){
+                    Squeezeshape(inputs[i], outputs.back());
+                }
+                else{
+                    computeShapeByReshapeMask(inputs[i], newShapeDesc, newShapeRange, outputs.back());
+                }
             }
         }
         else

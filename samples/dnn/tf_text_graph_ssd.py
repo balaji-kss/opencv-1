@@ -67,7 +67,7 @@ def createSSDGraph(modelPath, configPath, outputPath):
                'Sub', 'ResizeNearestNeighbor', 'Pad']
 
     # Node with which prefixes should be removed
-    prefixesToRemove = ('MultipleGridAnchorGenerator/', 'Concatenate/', 'Postprocessor/', 'Preprocessor/map')
+    prefixesToRemove = ('MultipleGridAnchorGenerator/', 'Postprocessor/', 'Preprocessor/map')
 
     # Load a config file.
     config = readTextMessage(configPath)
@@ -312,15 +312,11 @@ def createSSDGraph(modelPath, configPath, outputPath):
     addConcatNode('PriorBox/concat', priorBoxes, 'concat/axis_flatten')
 
     # Sigmoid for classes predictions and DetectionOutput layer
-    addReshape('ClassPredictor/concat', 'ClassPredictor/concat3d', [0, -1, num_classes + 1], graph_def)
-
     sigmoid = NodeDef()
     sigmoid.name = 'ClassPredictor/concat/sigmoid'
     sigmoid.op = 'Sigmoid'
-    sigmoid.input.append('ClassPredictor/concat3d')
+    sigmoid.input.append('ClassPredictor/concat')
     graph_def.node.extend([sigmoid])
-
-    addFlatten(sigmoid.name, sigmoid.name + '/Flatten', graph_def)
 
     detectionOut = NodeDef()
     detectionOut.name = 'detection_out'
@@ -330,7 +326,7 @@ def createSSDGraph(modelPath, configPath, outputPath):
         detectionOut.input.append('BoxEncodingPredictor/concat')
     else:
         detectionOut.input.append('BoxPredictor/concat')
-    detectionOut.input.append(sigmoid.name + '/Flatten')
+    detectionOut.input.append(sigmoid.name)
     detectionOut.input.append('PriorBox/concat')
 
     detectionOut.addAttr('num_classes', num_classes + 1)

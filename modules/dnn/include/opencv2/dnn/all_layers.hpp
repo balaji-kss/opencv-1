@@ -86,6 +86,12 @@ CV__DNN_INLINE_NS_BEGIN
         static Ptr<Layer> create(const LayerParams &params);
     };
 
+    class CV_EXPORTS ReduceSumLayer : public Layer
+    {
+    public:
+        static Ptr<Layer> create(const LayerParams &params);
+    };
+
     //! LSTM recurrent layer
     class CV_EXPORTS LSTMLayer : public Layer
     {
@@ -298,7 +304,7 @@ CV__DNN_INLINE_NS_BEGIN
     public:
         MatShape newShapeDesc;
         Range newShapeRange;
-
+        int squeeze;
         static Ptr<ReshapeLayer> create(const LayerParams& params);
     };
 
@@ -366,7 +372,6 @@ CV__DNN_INLINE_NS_BEGIN
          */
         std::vector<std::vector<Range> > sliceRanges;
         int axis;
-        int num_split;
 
         static Ptr<SliceLayer> create(const LayerParams &params);
     };
@@ -460,6 +465,12 @@ CV__DNN_INLINE_NS_BEGIN
     {
     public:
         static Ptr<TanHLayer> create(const LayerParams &params);
+    };
+
+    class CV_EXPORTS ExpLayer : public ActivationLayer
+    {
+    public:
+        static Ptr<ExpLayer> create(const LayerParams &params);
     };
 
     class CV_EXPORTS SigmoidLayer : public ActivationLayer
@@ -616,6 +627,8 @@ CV__DNN_INLINE_NS_BEGIN
         static Ptr<Layer> create(const LayerParams& params);
     };
 
+    
+    
     class CV_EXPORTS ProposalLayer : public Layer
     {
     public:

@@ -36,9 +36,8 @@ struct GAPI_EXPORTS GKernel
     using M = std::function<GMetaArgs(const GMetaArgs &, const GArgs &)>;
 
     const std::string name;       // kernel ID, defined by its API (signature)
-    const std::string tag;        // some (implementation-specific) tag
     const M           outMeta;    // generic adaptor to API::outMeta(...)
-    const GShapes     outShapes;  // types (shapes) kernel's outputs
+    const GShapes     outShapes; // types (shapes) kernel's outputs
 };
 
 // GKernelImpl describes particular kernel implementation to the system
@@ -167,12 +166,6 @@ namespace detail
         }
     };
 
-    ////////////////////////////////////////////////////////////////////////////
-    // Helper class to introduce tags to calls. By default there's no tag
-    struct NoTag {
-        static constexpr const char *tag() { return ""; }
-    };
-
 } // namespace detail
 
 // GKernelType and GKernelTypeM are base classes which implement typed ::on()
@@ -182,9 +175,8 @@ namespace detail
 // GKernelTypeM respectively.
 
 template<typename K, typename... R, typename... Args>
-class GKernelTypeM<K, std::function<std::tuple<R...>(Args...)> >
-    : public detail::MetaHelper<K, std::tuple<Args...>, std::tuple<R...>>
-    , public detail::NoTag
+class GKernelTypeM<K, std::function<std::tuple<R...>(Args...)> >:
+        public detail::MetaHelper<K, std::tuple<Args...>, std::tuple<R...>>
 {
     template<int... IIs>
     static std::tuple<R...> yield(cv::GCall &call, detail::Seq<IIs...>)
@@ -198,7 +190,7 @@ public:
 
     static std::tuple<R...> on(Args... args)
     {
-        cv::GCall call(GKernel{K::id(), K::tag(), &K::getOutMeta, {detail::GTypeTraits<R>::shape...}});
+        cv::GCall call(GKernel{K::id(), &K::getOutMeta, {detail::GTypeTraits<R>::shape...}});
         call.pass(args...);
         return yield(call, typename detail::MkSeq<sizeof...(R)>::type());
     }
@@ -207,9 +199,8 @@ public:
 template<typename, typename> class GKernelType;
 
 template<typename K, typename R, typename... Args>
-class GKernelType<K, std::function<R(Args...)> >
-    : public detail::MetaHelper<K, std::tuple<Args...>, R>
-    , public detail::NoTag
+class GKernelType<K, std::function<R(Args...)> >:
+        public detail::MetaHelper<K, std::tuple<Args...>, R>
 {
 public:
     using InArgs  = std::tuple<Args...>;
@@ -217,7 +208,7 @@ public:
 
     static R on(Args... args)
     {
-        cv::GCall call(GKernel{K::id(), K::tag(), &K::getOutMeta, {detail::GTypeTraits<R>::shape}});
+        cv::GCall call(GKernel{K::id(), &K::getOutMeta, {detail::GTypeTraits<R>::shape}});
         call.pass(args...);
         return detail::Yield<R>::yield(call, 0);
     }
@@ -252,9 +243,6 @@ public:
     struct Class final: public cv::GKernelTypeM<Class, std::function API >, \
                         public detail::G_ID_HELPER_CLASS(Class)
 // {body} is to be defined by user
-
-#define G_API_OP   G_TYPED_KERNEL
-#define G_API_OP_M G_TYPED_KERNEL_M
 
 namespace cv
 {
@@ -449,7 +437,6 @@ namespace gapi {
             return includesAPI(KAPI::id());
         }
 
-        // FIXME: The below comment is wrong, and who needs this function?
         /**
          * @brief Find a kernel (by its API)
          *

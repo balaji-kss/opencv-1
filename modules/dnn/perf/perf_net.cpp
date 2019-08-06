@@ -35,7 +35,7 @@ public:
 
         weights = findDataFile(weights, false);
         if (!proto.empty())
-            proto = findDataFile(proto);
+            proto = findDataFile(proto, false);
         if (backend == DNN_BACKEND_HALIDE)
         {
             if (halide_scheduler == "disabled")
@@ -190,11 +190,6 @@ PERF_TEST_P_(DNNTestNetwork, Inception_v2_SSD_TensorFlow)
             && getInferenceEngineVPUType() == CV_DNN_INFERENCE_ENGINE_VPU_TYPE_MYRIAD_X)
         throw SkipTestException("Test is disabled for MyriadX");
 #endif
-#if defined(INF_ENGINE_RELEASE) && INF_ENGINE_VER_MAJOR_EQ(2019020000)
-    if (backend == DNN_BACKEND_INFERENCE_ENGINE && target == DNN_TARGET_MYRIAD)
-        throw SkipTestException("Test is disabled for Myriad in OpenVINO 2019R2");
-#endif
-
     processNet("dnn/ssd_inception_v2_coco_2017_11_17.pb", "ssd_inception_v2_coco_2017_11_17.pbtxt", "",
             Mat(cv::Size(300, 300), CV_32FC3));
 }
@@ -203,10 +198,10 @@ PERF_TEST_P_(DNNTestNetwork, YOLOv3)
 {
     if (backend == DNN_BACKEND_HALIDE)
         throw SkipTestException("");
-    Mat sample = imread(findDataFile("dnn/dog416.png"));
+    Mat sample = imread(findDataFile("dnn/dog416.png", false));
     Mat inp;
     sample.convertTo(inp, CV_32FC3);
-    processNet("dnn/yolov3.weights", "dnn/yolov3.cfg", "", inp / 255);
+    processNet("dnn/yolov3.cfg", "dnn/yolov3.weights", "", inp / 255);
 }
 
 PERF_TEST_P_(DNNTestNetwork, EAST_text_detection)
@@ -228,10 +223,6 @@ PERF_TEST_P_(DNNTestNetwork, Inception_v2_Faster_RCNN)
 #if defined(INF_ENGINE_RELEASE) && INF_ENGINE_VER_MAJOR_EQ(2019010000)
     if (backend == DNN_BACKEND_INFERENCE_ENGINE)
         throw SkipTestException("Test is disabled in OpenVINO 2019R1");
-#endif
-#if defined(INF_ENGINE_RELEASE) && INF_ENGINE_VER_MAJOR_EQ(2019020000)
-    if (backend == DNN_BACKEND_INFERENCE_ENGINE)
-        throw SkipTestException("Test is disabled in OpenVINO 2019R2");
 #endif
     if (backend == DNN_BACKEND_HALIDE ||
         (backend == DNN_BACKEND_INFERENCE_ENGINE && target != DNN_TARGET_CPU) ||

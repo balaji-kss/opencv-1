@@ -9,7 +9,6 @@
 #include <iomanip>
 #include "gapi_fluid_test_kernels.hpp"
 #include <opencv2/gapi/core.hpp>
-#include <opencv2/gapi/own/saturate.hpp>
 
 namespace cv
 {
@@ -73,8 +72,7 @@ GAPI_FLUID_KERNEL(FAddCSimple, TAddCSimple, false)
             for (int i = 0, w = in.length(); i < w; i++)
             {
                 //std::cout << std::setw(4) << int(in_row[i]);
-                //FIXME: it seems that over kernels might need it as well
-                out_row[i] = cv::gapi::own::saturate<uint8_t>(in_row[i] + cval);
+                out_row[i] = static_cast<uint8_t>(in_row[i] + cval);
             }
             //std::cout << std::endl;
         }

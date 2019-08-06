@@ -29,6 +29,7 @@ public:
                                  std::vector<MatShape> &internals) const CV_OVERRIDE
     {
         CV_Assert(inputs.empty());
+        std::cout<<"blob shape "<<shape(blobs[0])<<std::endl;
         outputs.assign(1, shape(blobs[0]));
         return false;
     }

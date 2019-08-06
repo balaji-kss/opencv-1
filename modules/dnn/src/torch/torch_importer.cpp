@@ -629,6 +629,11 @@ struct TorchImporter
                 curModule->modules.push_back(cv::Ptr<Module>(new Module(nnName, "TanH")));
                 readObject();
             }
+            else if (nnName == "Exp")
+            {
+                curModule->modules.push_back(cv::Ptr<Module>(new Module(nnName, "Exp")));
+                readObject();
+            }
             else if (nnName == "Sigmoid")
             {
                 curModule->modules.push_back(cv::Ptr<Module>(new Module(nnName, "Sigmoid")));

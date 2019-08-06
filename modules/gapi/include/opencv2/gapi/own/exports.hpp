@@ -11,10 +11,8 @@
 #   if defined(__OPENCV_BUILD)
 #       include <opencv2/core/base.hpp>
 #       define GAPI_EXPORTS CV_EXPORTS
-#   else
-#       define GAPI_EXPORTS
 
-#if 0  // Note: the following version currently is not needed for non-OpenCV build
+#   else
 #       if defined _WIN32
 #           define GAPI_EXPORTS __declspec(dllexport)
 #       elif defined __GNUC__ && __GNUC__ >= 4
@@ -24,7 +22,6 @@
 #       ifndef GAPI_EXPORTS
 #           define GAPI_EXPORTS
 #       endif
-#endif
 
 #   endif
 

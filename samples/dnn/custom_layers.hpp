@@ -264,6 +264,7 @@ public:
 static inline void loadNet()
 {
     CV_DNN_REGISTER_LAYER_CLASS(Interp, InterpLayer);
+    //CV_DNN_REGISTER_LAYER_CLASS(ReduceSum, ReduceSumLayer);
     // ...
     //! [Register a custom layer]
 

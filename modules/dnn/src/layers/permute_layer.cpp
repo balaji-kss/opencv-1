@@ -122,6 +122,7 @@ public:
         }
 
         CV_Assert(inputs.size() > 0);
+        std::cout<<" num axes "<<(int)_numAxes<<" input size "<<inputs[0].size()<<std::endl;
         CV_Assert((int)_numAxes == inputs[0].size());
 
         MatShape shapeBefore = inputs[0], shapeAfter;

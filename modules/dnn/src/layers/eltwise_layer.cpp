@@ -62,6 +62,7 @@ public:
         PROD = 0,
         SUM = 1,
         MAX = 2,
+        DIV = 3,
     } op;
     std::vector<float> coeffs;
 
@@ -78,6 +79,8 @@ public:
                 op = SUM;
             else if (operation == "max")
                 op = MAX;
+            else if (operation == "div")
+                op = DIV;
             else
                 CV_Error(cv::Error::StsBadArg, "Unknown operation type \"" + operation + "\"");
         }
@@ -113,7 +116,8 @@ public:
 
         for (int i = 1; i < inputs.size(); i++)
         {
-            CV_Assert(inputs[0] == inputs[i]);
+            std::cout<<" 0 "<<inputs[0]<<" "<<i<<" "<<inputs[i]<<std::endl;
+            //CV_Assert(inputs[0] == inputs[i]);
         }
 
         outputs.assign(1, inputs[0]);
@@ -216,6 +220,18 @@ public:
                             srcptr0 = (const float*)dstptr;
                         }
                     }
+                    if( op == DIV )
+                    {
+                        for( k = 1; k < n; k++ )
+                        {
+                            const float* srcptr1 = srcs[k].ptr<float>() + globalDelta;
+                            for( j = 0; j < blockSize; j++ )
+                            {
+                                dstptr[j] = srcptr0[j]/srcptr1[j];
+                            }
+                            srcptr0 = (const float*)dstptr;
+                        }
+                    }
                     else if( op == MAX )
                     {
                         for( k = 1; k < n; k++ )
@@ -266,89 +282,89 @@ public:
         }
     };
 
-#ifdef HAVE_OPENCL
-    bool forward_ocl(InputArrayOfArrays inputs_, OutputArrayOfArrays outputs_, OutputArrayOfArrays internals_)
-    {
-        std::vector<UMat> inputs;
-        std::vector<UMat> outputs;
+// #ifdef HAVE_OPENCL
+//     bool forward_ocl(InputArrayOfArrays inputs_, OutputArrayOfArrays outputs_, OutputArrayOfArrays internals_)
+//     {
+//         std::vector<UMat> inputs;
+//         std::vector<UMat> outputs;
 
-        if (inputs_.depth() == CV_16S && op != SUM)
-            return false;
+//         if (inputs_.depth() == CV_16S && op != SUM)
+//             return false;
 
-        inputs_.getUMatVector(inputs);
-        outputs_.getUMatVector(outputs);
+//         inputs_.getUMatVector(inputs);
+//         outputs_.getUMatVector(outputs);
 
-        switch (op)
-        {
-            case SUM:
-                {
-                    int channels = total(shape(outputs[0]), 0, 2);
-                    int plane_size = total(shape(outputs[0]), 2);
-                    if (channels % 4 == 0 && plane_size % 4 == 0)
-                    {
-                        size_t localsize[] = { 128 };
-                        size_t globalsize[] = { (size_t)channels / 4 * localsize[0] };
-                        String opts;
-                        if (inputs_.depth() == CV_16S)
-                            opts = " -DDtype=half -DDtype4=half4 -DDtype8=half8";
-                        else
-                            opts = " -DDtype=float -DDtype4=float4 -DDtype8=float8";
+//         switch (op)
+//         {
+//             case SUM:
+//                 {
+//                     int channels = total(shape(outputs[0]), 0, 2);
+//                     int plane_size = total(shape(outputs[0]), 2);
+//                     if (channels % 4 == 0 && plane_size % 4 == 0)
+//                     {
+//                         size_t localsize[] = { 128 };
+//                         size_t globalsize[] = { (size_t)channels / 4 * localsize[0] };
+//                         String opts;
+//                         if (inputs_.depth() == CV_16S)
+//                             opts = " -DDtype=half -DDtype4=half4 -DDtype8=half8";
+//                         else
+//                             opts = " -DDtype=float -DDtype4=float4 -DDtype8=float8";
 
-                        for (int i = 0; i < (inputs.size() - 1); ++i)
-                        {
-                            String buildopt = format("-DLOOP=%d", i) + opts;
-                            ocl::Kernel kernel("op_sum4", ocl::dnn::eltwise_oclsrc, buildopt);
-                            int idx = 0;
-                            UMat inpMat = (i == 0) ? inputs[0] : UMat();
-                            float coeff1 = (coeffs.empty() || i > 0) ? 1.0f : coeffs[i];
-                            float coeff2 = coeffs.empty() ? 1.0f : coeffs[i + 1];
-                            kernel.set(idx++, ocl::KernelArg::PtrReadOnly(inputs[0]));
-                            kernel.set(idx++, ocl::KernelArg::PtrReadOnly(inputs[1]));
-                            kernel.set(idx++, (int)plane_size);
-                            kernel.set(idx++, (float)coeff1);
-                            kernel.set(idx++, (float)coeff2);
-                            kernel.set(idx++, ocl::KernelArg::PtrReadWrite(outputs[0]));
-                            bool ret = kernel.run(1, globalsize, localsize, false);
-                            if (!ret)
-                                return false;
-                        }
-                    }
-                    else
-                    {
-                        if (inputs_.depth() == CV_16S)
-                            return false;
+//                         for (int i = 0; i < (inputs.size() - 1); ++i)
+//                         {
+//                             String buildopt = format("-DLOOP=%d", i) + opts;
+//                             ocl::Kernel kernel("op_sum4", ocl::dnn::eltwise_oclsrc, buildopt);
+//                             int idx = 0;
+//                             UMat inpMat = (i == 0) ? inputs[0] : UMat();
+//                             float coeff1 = (coeffs.empty() || i > 0) ? 1.0f : coeffs[i];
+//                             float coeff2 = coeffs.empty() ? 1.0f : coeffs[i + 1];
+//                             kernel.set(idx++, ocl::KernelArg::PtrReadOnly(inputs[0]));
+//                             kernel.set(idx++, ocl::KernelArg::PtrReadOnly(inputs[1]));
+//                             kernel.set(idx++, (int)plane_size);
+//                             kernel.set(idx++, (float)coeff1);
+//                             kernel.set(idx++, (float)coeff2);
+//                             kernel.set(idx++, ocl::KernelArg::PtrReadWrite(outputs[0]));
+//                             bool ret = kernel.run(1, globalsize, localsize, false);
+//                             if (!ret)
+//                                 return false;
+//                         }
+//                     }
+//                     else
+//                     {
+//                         if (inputs_.depth() == CV_16S)
+//                             return false;
 
-                        float coeff1 = coeffs.empty() ? 1.f : coeffs[0];
-                        float coeff2 = coeffs.empty() ? 1.f : coeffs[1];
-                        UMat mul0, mul1;
-                        multiply(coeff1, inputs[0], mul0);
-                        multiply(coeff2, inputs[1], mul1);
-                        add(mul0, mul1, outputs[0]);
-                        for (int i = 2; i < inputs.size(); ++i)
-                        {
-                            float coeff = coeffs.empty() ? 1.f : coeffs[i];
-                            multiply(coeff, inputs[i], mul0);
-                            add(mul0, outputs[0], outputs[0]);
-                        }
-                    }
-                }
-                break;
-            case PROD:
-                multiply(inputs[0], inputs[1], outputs[0]);
-                for (int i = 2; i < inputs.size(); ++i)
-                    multiply(inputs[i], outputs[0], outputs[0]);
-                break;
-            case MAX:
-                max(inputs[0], inputs[1], outputs[0]);
-                for (int i = 2; i < inputs.size(); ++i)
-                    max(inputs[i], outputs[0], outputs[0]);
-                break;
-            default:
-                return false;
-        }
-        return true;
-    }
-#endif
+//                         float coeff1 = coeffs.empty() ? 1.f : coeffs[0];
+//                         float coeff2 = coeffs.empty() ? 1.f : coeffs[1];
+//                         UMat mul0, mul1;
+//                         multiply(coeff1, inputs[0], mul0);
+//                         multiply(coeff2, inputs[1], mul1);
+//                         add(mul0, mul1, outputs[0]);
+//                         for (int i = 2; i < inputs.size(); ++i)
+//                         {
+//                             float coeff = coeffs.empty() ? 1.f : coeffs[i];
+//                             multiply(coeff, inputs[i], mul0);
+//                             add(mul0, outputs[0], outputs[0]);
+//                         }
+//                     }
+//                 }
+//                 break;
+//             case PROD:
+//                 multiply(inputs[0], inputs[1], outputs[0]);
+//                 for (int i = 2; i < inputs.size(); ++i)
+//                     multiply(inputs[i], outputs[0], outputs[0]);
+//                 break;
+//             case MAX:
+//                 max(inputs[0], inputs[1], outputs[0]);
+//                 for (int i = 2; i < inputs.size(); ++i)
+//                     max(inputs[i], outputs[0], outputs[0]);
+//                 break;
+//             default:
+//                 return false;
+//         }
+//         return true;
+//     }
+// #endif
 
     void forward(InputArrayOfArrays inputs_arr, OutputArrayOfArrays outputs_arr, OutputArrayOfArrays internals_arr) CV_OVERRIDE
     {
@@ -433,6 +449,8 @@ public:
             ieLayer.setEltwiseType(InferenceEngine::Builder::EltwiseLayer::EltwiseType::MUL);
         else if (op == MAX)
             ieLayer.setEltwiseType(InferenceEngine::Builder::EltwiseLayer::EltwiseType::MAX);
+        else if (op == DIV)
+            ieLayer.setEltwiseType(InferenceEngine::Builder::EltwiseLayer::EltwiseType::DIV);
         else
             CV_Error(Error::StsNotImplemented, "Unsupported eltwise operation");
 

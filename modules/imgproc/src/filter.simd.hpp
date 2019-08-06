@@ -84,7 +84,6 @@ Ptr<BaseFilter> getLinearFilter(
 
 #ifndef CV_CPU_OPTIMIZATION_DECLARATIONS_ONLY
 
-typedef int CV_DECL_ALIGNED(1) unaligned_int;
 #define VEC_ALIGN CV_MALLOC_ALIGN
 
 int FilterEngine__start(FilterEngine& this_, const Size &_wholeSize, const Size &sz, const Point &ofs)
@@ -1050,7 +1049,7 @@ struct SymmColumnVec_32s8u
                     s0 = v_muladd(v_cvt_f32(v_load(src[k] + i) + v_load(src[-k] + i)), v_setall_f32(ky[k]), s0);
                 v_int32x4 s32 = v_round(s0);
                 v_int16x8 s16 = v_pack(s32, s32);
-                *(unaligned_int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
+                *(int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
                 i += v_int32x4::nlanes;
             }
         }
@@ -1105,7 +1104,7 @@ struct SymmColumnVec_32s8u
                     s0 = v_muladd(v_cvt_f32(v_load(src[k] + i) - v_load(src[-k] + i)), v_setall_f32(ky[k]), s0);
                 v_int32x4 s32 = v_round(s0);
                 v_int16x8 s16 = v_pack(s32, s32);
-                *(unaligned_int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
+                *(int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
                 i += v_int32x4::nlanes;
             }
         }
@@ -2130,7 +2129,7 @@ struct FilterVec_8u
                 s0 = v_muladd(v_cvt_f32(v_reinterpret_as_s32(v_load_expand_q(src[k] + i))), v_setall_f32(kf[k]), s0);
             v_int32x4 s32 = v_round(s0);
             v_int16x8 s16 = v_pack(s32, s32);
-            *(unaligned_int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
+            *(int*)(dst + i) = v_reinterpret_as_s32(v_pack_u(s16, s16)).get0();
             i += v_int32x4::nlanes;
         }
         return i;

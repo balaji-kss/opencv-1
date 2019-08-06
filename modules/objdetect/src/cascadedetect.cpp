@@ -46,10 +46,6 @@
 #include "cascadedetect.hpp"
 #include "opencl_kernels_objdetect.hpp"
 
-#if defined(_MSC_VER)
-#  pragma warning(disable:4458)  // declaration of 'origWinSize' hides class member
-#endif
-
 namespace cv
 {
 
@@ -540,7 +536,7 @@ bool FeatureEvaluator::setImage( InputArray _image, const std::vector<float>& _s
 
 //----------------------------------------------  HaarEvaluator ---------------------------------------
 
-bool HaarEvaluator::Feature::read(const FileNode& node, const Size& origWinSize)
+bool HaarEvaluator::Feature :: read( const FileNode& node )
 {
     FileNode rnode = node[CC_RECTS];
     FileNodeIterator it = rnode.begin(), it_end = rnode.end();
@@ -552,23 +548,11 @@ bool HaarEvaluator::Feature::read(const FileNode& node, const Size& origWinSize)
         rect[ri].weight = 0.f;
     }
 
-    const int W = origWinSize.width;
-    const int H = origWinSize.height;
-
     for(ri = 0; it != it_end; ++it, ri++)
     {
         FileNodeIterator it2 = (*it).begin();
-        Feature::RectWeigth& rw = rect[ri];
-        it2 >> rw.r.x >> rw.r.y >> rw.r.width >> rw.r.height >> rw.weight;
-        // input validation
-        {
-            CV_CheckGE(rw.r.x, 0, "Invalid HAAR feature");
-            CV_CheckGE(rw.r.y, 0, "Invalid HAAR feature");
-            CV_CheckLT(rw.r.x, W, "Invalid HAAR feature");  // necessary for overflow checks
-            CV_CheckLT(rw.r.y, H, "Invalid HAAR feature");  // necessary for overflow checks
-            CV_CheckLE(rw.r.x + rw.r.width, W, "Invalid HAAR feature");
-            CV_CheckLE(rw.r.y + rw.r.height, H, "Invalid HAAR feature");
-        }
+        it2 >> rect[ri].r.x >> rect[ri].r.y >>
+            rect[ri].r.width >> rect[ri].r.height >> rect[ri].weight;
     }
 
     tilted = (int)node[CC_TILTED] != 0;
@@ -613,7 +597,7 @@ bool HaarEvaluator::read(const FileNode& node, Size _origWinSize)
 
     for(i = 0; i < n; i++, ++it)
     {
-        if(!ff[i].read(*it, _origWinSize))
+        if(!ff[i].read(*it))
             return false;
         if( ff[i].tilted )
             hasTiltedFeatures = true;
@@ -774,24 +758,11 @@ int HaarEvaluator::getSquaresOffset() const
 }
 
 //----------------------------------------------  LBPEvaluator -------------------------------------
-bool LBPEvaluator::Feature::read(const FileNode& node, const Size& origWinSize)
+bool LBPEvaluator::Feature :: read(const FileNode& node )
 {
     FileNode rnode = node[CC_RECT];
     FileNodeIterator it = rnode.begin();
     it >> rect.x >> rect.y >> rect.width >> rect.height;
-
-    const int W = origWinSize.width;
-    const int H = origWinSize.height;
-    // input validation
-    {
-        CV_CheckGE(rect.x, 0, "Invalid LBP feature");
-        CV_CheckGE(rect.y, 0, "Invalid LBP feature");
-        CV_CheckLT(rect.x, W, "Invalid LBP feature");
-        CV_CheckLT(rect.y, H, "Invalid LBP feature");
-        CV_CheckLE(rect.x + rect.width, W, "Invalid LBP feature");
-        CV_CheckLE(rect.y + rect.height, H, "Invalid LBP feature");
-    }
-
     return true;
 }
 
@@ -825,7 +796,7 @@ bool LBPEvaluator::read( const FileNode& node, Size _origWinSize )
     std::vector<Feature>& ff = *features;
     for(int i = 0; it != it_end; ++it, i++)
     {
-        if(!ff[i].read(*it, _origWinSize))
+        if(!ff[i].read(*it))
             return false;
     }
     nchannels = 1;
@@ -1470,8 +1441,6 @@ bool CascadeClassifierImpl::Data::read(const FileNode &root)
     origWinSize.width = (int)root[CC_WIDTH];
     origWinSize.height = (int)root[CC_HEIGHT];
     CV_Assert( origWinSize.height > 0 && origWinSize.width > 0 );
-    CV_CheckLE(origWinSize.width, 1000000, "Invalid window size (too large)");
-    CV_CheckLE(origWinSize.height, 1000000, "Invalid window size (too large)");
 
     // load feature params
     FileNode fn = root[CC_FEATURE_PARAMS];

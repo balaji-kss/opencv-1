@@ -2,7 +2,6 @@ package org.opencv.android;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -25,7 +24,6 @@ import android.view.ViewGroup.LayoutParams;
 
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
 /**
@@ -250,20 +248,6 @@ public class JavaCamera2View extends CameraBridgeViewBase {
         }
     }
 
-    public static class JavaCameraSizeAccessor implements ListItemAccessor {
-        @Override
-        public int getWidth(Object obj) {
-            android.util.Size size = (android.util.Size)obj;
-            return size.getWidth();
-        }
-
-        @Override
-        public int getHeight(Object obj) {
-            android.util.Size size = (android.util.Size)obj;
-            return size.getHeight();
-        }
-    }
-
     boolean calcPreviewSize(final int width, final int height) {
         Log.i(LOGTAG, "calcPreviewSize: " + width + "x" + height);
         if (mCameraID == null) {
@@ -274,15 +258,26 @@ public class JavaCamera2View extends CameraBridgeViewBase {
         try {
             CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraID);
             StreamConfigurationMap map = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            int bestWidth = 0, bestHeight = 0;
+            float aspect = (float) width / height;
             android.util.Size[] sizes = map.getOutputSizes(ImageReader.class);
-            List<android.util.Size> sizes_list = Arrays.asList(sizes);
-            Size frameSize = calculateCameraFrameSize(sizes_list, new JavaCameraSizeAccessor(), width, height);
-            Log.i(LOGTAG, "Selected preview size to " + Integer.valueOf((int)frameSize.width) + "x" + Integer.valueOf((int)frameSize.height));
-            assert(!(frameSize.width == 0 || frameSize.height == 0));
-            if (mPreviewSize.getWidth() == frameSize.width && mPreviewSize.getHeight() == frameSize.height)
+            bestWidth = sizes[0].getWidth();
+            bestHeight = sizes[0].getHeight();
+            for (android.util.Size sz : sizes) {
+                int w = sz.getWidth(), h = sz.getHeight();
+                Log.d(LOGTAG, "trying size: " + w + "x" + h);
+                if (width >= w && height >= h && bestWidth <= w && bestHeight <= h
+                        && Math.abs(aspect - (float) w / h) < 0.2) {
+                    bestWidth = w;
+                    bestHeight = h;
+                }
+            }
+            Log.i(LOGTAG, "best size: " + bestWidth + "x" + bestHeight);
+            assert(!(bestWidth == 0 || bestHeight == 0));
+            if (mPreviewSize.getWidth() == bestWidth && mPreviewSize.getHeight() == bestHeight)
                 return false;
             else {
-                mPreviewSize = new android.util.Size((int)frameSize.width, (int)frameSize.height);
+                mPreviewSize = new android.util.Size(bestWidth, bestHeight);
                 return true;
             }
         } catch (CameraAccessException e) {

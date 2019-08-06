@@ -21,11 +21,10 @@
 
 #define INF_ENGINE_RELEASE_2018R5 2018050000
 #define INF_ENGINE_RELEASE_2019R1 2019010000
-#define INF_ENGINE_RELEASE_2019R2 2019020000
 
 #ifndef INF_ENGINE_RELEASE
-#warning("IE version have not been provided via command-line. Using 2019R2 by default")
-#define INF_ENGINE_RELEASE INF_ENGINE_RELEASE_2019R2
+#warning("IE version have not been provided via command-line. Using 2019R1 by default")
+#define INF_ENGINE_RELEASE INF_ENGINE_RELEASE_2019R1
 #endif
 
 #define INF_ENGINE_VER_MAJOR_GT(ver) (((INF_ENGINE_RELEASE) / 10000) > ((ver) / 10000))
@@ -39,16 +38,7 @@
 #pragma GCC diagnostic ignored "-Wsuggest-override"
 #endif
 
-//#define INFERENCE_ENGINE_DEPRECATED  // turn off deprecation warnings from IE
-//there is no way to suppress warnigns from IE only at this moment, so we are forced to suppress warnings globally
-#if defined(__GNUC__)
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-#ifdef _MSC_VER
-#pragma warning(disable: 4996)  // was declared deprecated
-#endif
-
-#if defined(__GNUC__)
+#if defined(__GNUC__) && INF_ENGINE_VER_MAJOR_LE(INF_ENGINE_RELEASE_2019R1)
 #pragma GCC visibility push(default)
 #endif
 
@@ -56,7 +46,7 @@
 
 #include <ie_builders.hpp>
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && INF_ENGINE_VER_MAJOR_LE(INF_ENGINE_RELEASE_2019R1)
 #pragma GCC visibility pop
 #endif
 
@@ -94,7 +84,7 @@ public:
 
     void initPlugin(InferenceEngine::ICNNNetwork& net);
 
-    void addBlobs(const std::vector<cv::Ptr<BackendWrapper> >& ptrs);
+    void addBlobs(const std::vector<Ptr<BackendWrapper> >& ptrs);
 
 private:
     InferenceEngine::Builder::Network netBuilder;

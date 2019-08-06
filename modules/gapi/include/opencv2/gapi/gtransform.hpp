@@ -16,16 +16,13 @@
 #include <opencv2/gapi/garg.hpp>
 #include <opencv2/gapi/gtype_traits.hpp>
 #include <opencv2/gapi/util/compiler_hints.hpp>
-#include <opencv2/gapi/gcomputation.hpp>
 
 namespace cv
 {
 
 struct GAPI_EXPORTS GTransform
 {
-    // FIXME: consider another simplified
-    // class instead of GComputation
-    using F = std::function<GComputation()>;
+    using F = std::function<GArgs(const GArgs &)>;
 
     std::string description;
     F pattern;
@@ -44,22 +41,20 @@ template <typename K, typename... Ins, typename Out>
 struct TransHelper<K, std::tuple<Ins...>, Out>
 {
     template <typename Callable, int... IIs, int... OIs>
-    static GComputation invoke(Callable f, Seq<IIs...>, Seq<OIs...>)
+    static GArgs invoke(Callable f, const GArgs &in_args, Seq<IIs...>, Seq<OIs...>)
     {
-        const std::tuple<Ins...> ins;
-        const auto r = tuple_wrap_helper<Out>::get(f(std::get<IIs>(ins)...));
-        return GComputation(cv::GIn(std::get<IIs>(ins)...),
-                            cv::GOut(std::get<OIs>(r)...));
+        const auto r = tuple_wrap_helper<Out>::get(f(in_args.at(IIs).template get<Ins>()...));
+        return GArgs{GArg(std::get<OIs>(r))...};
     }
 
-    static GComputation get_pattern()
+    static GArgs get_pattern(const GArgs &in_args)
     {
-        return invoke(K::pattern, typename MkSeq<sizeof...(Ins)>::type(),
+        return invoke(K::pattern, in_args, typename MkSeq<sizeof...(Ins)>::type(),
                       typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
     }
-    static GComputation get_substitute()
+    static GArgs get_substitute(const GArgs &in_args)
     {
-        return invoke(K::substitute, typename MkSeq<sizeof...(Ins)>::type(),
+        return invoke(K::substitute, in_args, typename MkSeq<sizeof...(Ins)>::type(),
                       typename MkSeq<std::tuple_size<typename tuple_wrap_helper<Out>::type>::value>::type());
     }
 };

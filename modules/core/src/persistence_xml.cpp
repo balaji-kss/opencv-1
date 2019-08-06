@@ -360,9 +360,6 @@ public:
 
     char* skipSpaces( char* ptr, int mode )
     {
-        if (!ptr)
-            CV_PARSE_ERROR_CPP("Invalid input");
-
         int level = 0;
 
         for(;;)
@@ -444,9 +441,6 @@ public:
 
     char* parseValue( char* ptr, FileNode& node )
     {
-        if (!ptr)
-            CV_PARSE_ERROR_CPP("Invalid input");
-
         FileNode new_elem;
         bool have_space = true;
         int value_type = node.type();
@@ -462,8 +456,6 @@ public:
                 (c == '<' && ptr[1] == '!' && ptr[2] == '-') )
             {
                 ptr = skipSpaces( ptr, 0 );
-                if (!ptr)
-                    CV_PARSE_ERROR_CPP("Invalid input");
                 have_space = true;
                 c = *ptr;
             }
@@ -510,8 +502,6 @@ public:
                 {
                     ptr = fs->parseBase64( ptr, 0, new_elem);
                     ptr = skipSpaces( ptr, 0 );
-                    if (!ptr)
-                        CV_PARSE_ERROR_CPP("Invalid input");
                 }
 
                 ptr = parseTag( ptr, key2, type_name, tag_type );
@@ -655,9 +645,6 @@ public:
     char* parseTag( char* ptr, std::string& tag_name,
                     std::string& type_name, int& tag_type )
     {
-        if (!ptr)
-            CV_PARSE_ERROR_CPP("Invalid tag input");
-
         if( *ptr == '\0' )
             CV_PARSE_ERROR_CPP( "Unexpected end of the stream" );
 
@@ -715,8 +702,6 @@ public:
                 if( *ptr != '=' )
                 {
                     ptr = skipSpaces( ptr, CV_XML_INSIDE_TAG );
-                    if (!ptr)
-                        CV_PARSE_ERROR_CPP("Invalid attribute");
                     if( *ptr != '=' )
                         CV_PARSE_ERROR_CPP( "Attribute name should be followed by \'=\'" );
                 }
@@ -755,8 +740,6 @@ public:
             if( c != '>' )
             {
                 ptr = skipSpaces( ptr, CV_XML_INSIDE_TAG );
-                if (!ptr)
-                    CV_PARSE_ERROR_CPP("Invalid input");
                 c = *ptr;
             }
 
@@ -798,8 +781,6 @@ public:
 
         // CV_XML_INSIDE_TAG is used to prohibit leading comments
         ptr = skipSpaces( ptr, CV_XML_INSIDE_TAG );
-        if (!ptr)
-            CV_PARSE_ERROR_CPP("Invalid input");
 
         if( memcmp( ptr, "<?xml", 5 ) != 0 )  // FIXIT ptr[1..] - out of bounds read without check
             CV_PARSE_ERROR_CPP( "Valid XML should start with \'<?xml ...?>\'" );
@@ -810,8 +791,6 @@ public:
         while( ptr && *ptr != '\0' )
         {
             ptr = skipSpaces( ptr, 0 );
-            if (!ptr)
-                CV_PARSE_ERROR_CPP("Invalid input");
 
             if( *ptr != '\0' )
             {

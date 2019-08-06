@@ -1137,12 +1137,7 @@ bool ReadProtoFromBinaryFile(const char* filename, Message* proto) {
 
 bool ReadProtoFromTextBuffer(const char* data, size_t len, Message* proto) {
     ArrayInputStream input(data, len);
-#ifndef OPENCV_DNN_EXTERNAL_PROTOBUF
-    return google::protobuf::TextFormat::Parser(true).Parse(&input, proto);
-#else
-    return google::protobuf::TextFormat::Parser().Parse(&input, proto);
-#endif
-
+    return google::protobuf::TextFormat::Parse(&input, proto);
 }
 
 

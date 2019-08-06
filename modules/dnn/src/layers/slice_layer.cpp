@@ -61,7 +61,6 @@ public:
     {
         setParamsFrom(params);
         axis = params.get<int>("axis", 1);
-        num_split = params.get<int>("num_split", 0);
         if (params.has("slice_point"))
         {
             CV_Assert(!params.has("begin") && !params.has("size") && !params.has("end"));
@@ -142,10 +141,9 @@ public:
         else  // Divide input blob on equal parts by axis.
         {
             CV_Assert(0 <= axis && axis < inpShape.size());
-            int splits = num_split ? num_split : requiredOutputs;
-            CV_Assert(splits > 0 && inpShape[axis] % splits == 0);
-            inpShape[axis] /= splits;
-            outputs.resize(splits, inpShape);
+            CV_Assert(requiredOutputs > 0 && inpShape[axis] % requiredOutputs == 0);
+            inpShape[axis] /= requiredOutputs;
+            outputs.resize(requiredOutputs, inpShape);
         }
         return false;
     }

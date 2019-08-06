@@ -2233,10 +2233,7 @@ struct Net::Impl
                 if (isAsync)
                     CV_Error(Error::StsNotImplemented, "Default implementation fallbacks in asynchronous mode");
 
-                if (!layer->supportBackend(DNN_BACKEND_OPENCV))
-                    CV_Error(Error::StsNotImplemented, format("Layer \"%s\" of type \"%s\" unsupported on OpenCV backend",
-                                                       ld.name.c_str(), ld.type.c_str()));
-
+                CV_Assert(layer->supportBackend(DNN_BACKEND_OPENCV));
                 if (preferableBackend == DNN_BACKEND_OPENCV && IS_DNN_OPENCL_TARGET(preferableTarget))
                 {
                     std::vector<UMat> umat_inputBlobs = OpenCLBackendWrapper::getUMatVector(ld.inputBlobsWrappers);
@@ -2982,13 +2979,6 @@ String parseLayerParams(const String& name, const LayerParams& lp) {
 String Net::dump()
 {
     CV_Assert(!empty());
-
-    if (impl->netInputLayer->inputsData.empty())
-        CV_Error(Error::StsError, "Requested set input");
-
-    if (!impl->netWasAllocated)
-        impl->setUpNet();
-
     std::ostringstream out;
     std::map<int, LayerData>& map = impl->layers;
     int prefBackend = impl->preferableBackend;

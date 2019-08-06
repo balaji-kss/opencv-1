@@ -753,6 +753,15 @@ PyObject* pyopencv_from(const Size_<float>& sz)
 }
 
 template<>
+bool pyopencv_to(PyObject* obj, Rect& r, const char* name)
+{
+    CV_UNUSED(name);
+    if(!obj || obj == Py_None)
+        return true;
+    return PyArg_ParseTuple(obj, "iiii", &r.x, &r.y, &r.width, &r.height) > 0;
+}
+
+template<>
 PyObject* pyopencv_from(const Rect& r)
 {
     return Py_BuildValue("(iiii)", r.x, r.y, r.width, r.height);
@@ -1356,25 +1365,6 @@ template<> struct pyopencvVecConverter<RotatedRect>
         return pyopencv_from_generic_vec(value);
     }
 };
-
-template<>
-bool pyopencv_to(PyObject* obj, Rect& r, const char* name)
-{
-    CV_UNUSED(name);
-    if(!obj || obj == Py_None)
-        return true;
-
-    if (PyTuple_Check(obj))
-        return PyArg_ParseTuple(obj, "iiii", &r.x, &r.y, &r.width, &r.height) > 0;
-    else
-    {
-        std::vector<int> value(4);
-        pyopencvVecConverter<int>::to(obj, value, ArgInfo(name, 0));
-        r = Rect(value[0], value[1], value[2], value[3]);
-        return true;
-    }
-
-}
 
 template<>
 bool pyopencv_to(PyObject *obj, TermCriteria& dst, const char *name)
