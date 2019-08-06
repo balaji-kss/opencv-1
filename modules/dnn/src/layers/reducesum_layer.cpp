@@ -63,16 +63,16 @@ public:
                                  std::vector<MatShape> &internals) const CV_OVERRIDE
     {
         //CV_Assert(inputs.empty());
-        std::cout<<"input size "<<inputs.size()<<std::endl;
+        //std::cout<<"input size "<<inputs.size()<<std::endl;
         ///std::cout<<"blob shape "<<shape(blobs[0])<<std::endl;  /////blob size is zero
-        std::cout<<"input size "<<inputs[0].size()<<std::endl;
+        //std::cout<<"input size "<<inputs[0].size()<<std::endl;
 
-        for(int i=0;i<inputs.size();i++){
-            for(int j=0;j<inputs[i].size();j++){
-                std::cout<<inputs[i][j]<<" ";
-            }
-            std::cout<<" "<<std::endl;
-        }
+        // for(int i=0;i<inputs.size();i++){
+        //     for(int j=0;j<inputs[i].size();j++){
+        //         std::cout<<inputs[i][j]<<" ";
+        //     }
+        //     std::cout<<" "<<std::endl;
+        // }
         if(axis==-1){
             std::vector<int> outShape(1);    
             outShape[0] = 1;    
@@ -82,7 +82,7 @@ public:
             std::vector<int> outShape(2);
             outShape[0] = inputs[0][1];
             outShape[1] = 1;
-            std::cout<<"outShape[1] "<<outShape[1]<<" inputs[0][1] "<<inputs[0][1]<<std::endl;
+            //std::cout<<"outShape[1] "<<outShape[1]<<" inputs[0][1] "<<inputs[0][1]<<std::endl;
             outputs.assign(1, outShape);
         }
         else if(axis==1){
@@ -121,24 +121,24 @@ public:
         
         outputs_arr.getMatVector(outputs);
 
-        std::cout<<"input size "<<inputs.size()<<" rows "<<inputs[0].rows<<" cols "<<inputs[0].cols<<std::endl;
-        std::cout<<"outputs size "<<outputs.size()<<" rows "<<outputs[0].rows<<" cols "<<outputs[0].cols<<std::endl;
+        //std::cout<<"input size "<<inputs.size()<<" rows "<<inputs[0].rows<<" cols "<<inputs[0].cols<<std::endl;
+        //std::cout<<"outputs size "<<outputs.size()<<" rows "<<outputs[0].rows<<" cols "<<outputs[0].cols<<std::endl;
 
         if(axis == -1){
 
             for(int i=0;i<inputs.size();i++){
-            std::cout<<"input "<<i<<std::endl;
+            //std::cout<<"input "<<i<<std::endl;
             int sum = 0;
             for(int j=0;j<inputs[i].rows;j++){
-                std::cout<<"input row "<<j<<std::endl;
+                //std::cout<<"input row "<<j<<std::endl;
                 for(int k=0;k<inputs[i].cols;k++){
-                    std::cout<<inputs[i].at<float>(j,k)<<" ";
+                    //std::cout<<inputs[i].at<float>(j,k)<<" ";
                     sum+= inputs[i].at<float>(j,k);
                     }
-                std::cout<<" "<<std::endl;
+                //std::cout<<" "<<std::endl;
                 }
             outputs[i].at<float>(0,0) = sum; 
-            std::cout<<i<<" sum "<<outputs[i].at<float>(0,0)<<std::endl;
+            //std::cout<<i<<" sum "<<outputs[i].at<float>(0,0)<<std::endl;
             }
         }
 
@@ -146,8 +146,8 @@ public:
 
             for(int i=0;i<inputs.size();i++){
                 //cv::Mat sum_col = cv::Mat::zeros(cv::Size(inputs[i].cols,1), CV_32FC1);
-                std::cout<<"input "<<i<<" rows "<<inputs[i].rows<<std::endl;
-                std::cout<<"input "<<i<<" cols "<<inputs[i].cols<<std::endl;
+                // std::cout<<"input "<<i<<" rows "<<inputs[i].rows<<std::endl;
+                // std::cout<<"input "<<i<<" cols "<<inputs[i].cols<<std::endl;
                 // std::cout<<"sum_col "<<i<<" cols "<<sum_col.cols<<std::endl;
                 // std::cout<<"sum_col "<<i<<" rows "<<sum_col.rows<<std::endl;
 
@@ -155,12 +155,12 @@ public:
                     int sum = 0;
                     for(int k=0;k<inputs[i].rows;k++){
 
-                        std::cout<<inputs[i].at<float>(k,j)<<" ";
+                        //std::cout<<inputs[i].at<float>(k,j)<<" ";
                         sum+= inputs[i].at<float>(k,j);
                         
                         }       
-                    std::cout<<" "<<std::endl;
-                    std::cout<<" j "<<j<<std::endl;
+                    // std::cout<<" "<<std::endl;
+                    // std::cout<<" j "<<j<<std::endl;
                     outputs[i].at<float>(j,0) = sum;
                     }
                 //std::cout<<i<<" sum "<<outputs[i].at<float>(0,0)<<std::endl;
@@ -177,11 +177,11 @@ public:
                     int sum = 0;
                     for(int k=0;k<inputs[i].cols;k++){
 
-                        std::cout<<inputs[i].at<float>(j,k)<<" ";
+                        //std::cout<<inputs[i].at<float>(j,k)<<" ";
                         sum+= inputs[i].at<float>(j,k);
                         
                         }       
-                    std::cout<<" "<<std::endl;
+                    //std::cout<<" "<<std::endl;
                     outputs[i].at<float>(j,0) = sum;
                     }
                 //std::cout<<i<<" sum "<<outputs[i].at<float>(0,0)<<std::endl;
@@ -190,7 +190,7 @@ public:
             
         }
 
-        std::cout<<"outputs size "<<outputs.size()<<" rows "<<outputs[0].rows<<" cols "<<outputs[0].cols<<std::endl;
+        //std::cout<<"outputs size "<<outputs.size()<<" rows "<<outputs[0].rows<<" cols "<<outputs[0].cols<<std::endl;
 
     }
 };

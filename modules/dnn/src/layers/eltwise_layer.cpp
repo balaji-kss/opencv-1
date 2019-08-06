@@ -114,11 +114,11 @@ public:
         CV_Assert(coeffs.size() == 0 || coeffs.size() == inputs.size());
         CV_Assert(op == SUM || coeffs.size() == 0);
 
-        for (int i = 1; i < inputs.size(); i++)
-        {
-            std::cout<<" 0 "<<inputs[0]<<" "<<i<<" "<<inputs[i]<<std::endl;
-            //CV_Assert(inputs[0] == inputs[i]);
-        }
+        // for (int i = 1; i < inputs.size(); i++)
+        // {
+        //     std::cout<<" 0 "<<inputs[0]<<" "<<i<<" "<<inputs[i]<<std::endl;
+        //     //CV_Assert(inputs[0] == inputs[i]);
+        // }
 
         outputs.assign(1, inputs[0]);
 

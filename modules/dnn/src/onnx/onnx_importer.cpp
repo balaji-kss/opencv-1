@@ -486,24 +486,24 @@ void ONNXImporter::populateNet(Net dstNet)
 
                 Mat blob = getBlob(node_proto, constBlobs, 1);
             
-                std::cout<<"div after"<<std::endl;
+                //std::cout<<"div after"<<std::endl;
                 CV_Assert_N(blob.type() == CV_32F, blob.total());
                 if (blob.total() == 1)
                 {
-                    std::cout<<"div first "<<std::endl;
+                    //std::cout<<"div first "<<std::endl;
                     layerParams.set("scale", 1.0f / blob.at<float>(0));
                     layerParams.type = "Power";
                 }
                 else
                 {
-                    std::cout<<"div second "<<std::endl;
+                    //std::cout<<"div second "<<std::endl;
                     layerParams.type = "Scale";
                     divide(1.0, blob, blob);
                     layerParams.blobs.push_back(blob);
                     layerParams.set("bias_term", false);
                 }
             }else{
-                std::cout<<"div else "<<std::endl;
+                //std::cout<<"div else "<<std::endl;
                 layerParams.type = "Eltwise";
                 layerParams.set("operation", "div");
             }
@@ -740,7 +740,7 @@ void ONNXImporter::populateNet(Net dstNet)
         {
 
             //CV_Assert(node_proto.input_size() == 1);
-            std::cout<<"inside reduce sum "<<std::endl;
+            //std::cout<<"inside reduce sum "<<std::endl;
             DictValue axes = layerParams.get("axes");
             layerParams.type = "ReduceSum";
             
@@ -821,13 +821,13 @@ void ONNXImporter::populateNet(Net dstNet)
         {
             CV_Assert(node_proto.input_size() == 1);
             DictValue axes = layerParams.get("axes");
-            std::cout<<"Squeeze "<<std::endl;
+            //std::cout<<"Squeeze "<<std::endl;
             if (constBlobs.find(node_proto.input(0)) != constBlobs.end())
             {
                 // Constant input.
-                std::cout<<"inside if "<<std::endl;
+                //std::cout<<"inside if "<<std::endl;
                 Mat input = getBlob(node_proto, constBlobs, 0);
-                std::cout<<" rows "<<input.rows<<" cols "<<input.cols<<std::endl;
+                //std::cout<<" rows "<<input.rows<<" cols "<<input.cols<<std::endl;
                 std::vector<int> dims;
                 for (int j = 0; j < input.dims; j++) {
                     dims.push_back(input.size[j]);
@@ -837,7 +837,7 @@ void ONNXImporter::populateNet(Net dstNet)
                     dims.insert(dims.begin() + axes.getIntValue(j), 1);
                 }
 
-                std::cout<<"unsqueeze name "<<layerParams.name<<std::endl;
+                
                 Mat out = input.reshape(0, dims);
                 constBlobs.insert(std::make_pair(layerParams.name, out));
                 continue;
@@ -960,8 +960,8 @@ void ONNXImporter::populateNet(Net dstNet)
                 // Pytorch layer
                 DictValue scales = layerParams.get("scales");
                 CV_Assert(scales.size() == 4);
-                std::cout<<"scales y "<<scales.getIntValue(2)<<std::endl;
-                std::cout<<"scales x "<<scales.getIntValue(3)<<std::endl;
+                // std::cout<<"scales y "<<scales.getIntValue(2)<<std::endl;
+                // std::cout<<"scales x "<<scales.getIntValue(3)<<std::endl;
                 layerParams.set("zoom_factor_y", scales.getIntValue(2));
                 layerParams.set("zoom_factor_x", scales.getIntValue(3));
             }
@@ -1005,12 +1005,12 @@ void ONNXImporter::populateNet(Net dstNet)
         // Compute shape of output blob for this layer.
         Ptr<Layer> layer = dstNet.getLayer(id);
         layer->getMemoryShapes(layerInpShapes, 0, layerOutShapes, layerInternalShapes);
-        std::cout<<layerParams.name<<" "<<layerOutShapes.size()<<std::endl;
-        for (int i = 0; i < layerOutShapes.size(); i++)
-        {
-            std::cout<<layerOutShapes[i]<<" ";
-        }
-        std::cout<<" "<<std::endl;
+        // std::cout<<layerParams.name<<" "<<layerOutShapes.size()<<std::endl;
+        // for (int i = 0; i < layerOutShapes.size(); i++)
+        // {
+        //     std::cout<<layerOutShapes[i]<<" ";
+        // }
+        // std::cout<<" "<<std::endl;
         CV_Assert(!layerOutShapes.empty());
         outShapes[layerParams.name] = layerOutShapes[0];
     }
